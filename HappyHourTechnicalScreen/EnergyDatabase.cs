@@ -4,7 +4,6 @@ public class EnergyDatabase
 {
     private readonly Func<DateTime> currentTimeGetter;
 
-
     /// <summary>
     /// Mockup database.
     /// </summary>
@@ -57,7 +56,6 @@ public class EnergyDatabase
         private readonly EnergyDatabase parentDatabase;
         private int energy;
         private DateTime lastUpdateTimeStamp;
-        private TimeSpan storedTime;
 
         public EnergyManager(EnergyDatabase parentDatabase, int initialEnergy, DateTime lastUpdateTimeStamp)
         {
@@ -72,9 +70,11 @@ public class EnergyDatabase
 
         public int GetEnergy()
         {
-            storedTime += CurrentTime - lastUpdateTimeStamp;
-            var deltaEnergy = (int)(storedTime.Ticks / TimeForOneEnergy.Ticks);
-            storedTime -= TimeForOneEnergy * deltaEnergy;
+            var deltaTime = CurrentTime - lastUpdateTimeStamp;
+            var deltaEnergy = (int)(deltaTime.Ticks / TimeForOneEnergy.Ticks);
+
+            if (deltaEnergy <= 0) return energy;
+
             energy = Math.Min(MaxEnergy, energy + deltaEnergy);
             lastUpdateTimeStamp = CurrentTime;
             return energy;
