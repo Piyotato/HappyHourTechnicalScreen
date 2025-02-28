@@ -39,7 +39,7 @@ In this stage, we will run the test for the project. Namely, we need:
 * Data serialization/deserialization tests, especially if the game is data-driven;
 * Some unit performance tests, which are important in the context of games.
 
-Note that this involves having already written comprehensive tests for the critical features in the project. Without comprehensive tests, it's risky to do CI/CD.
+Note that this involves having already written comprehensive tests for the critical features in the project. Without comprehensive tests, it's risky to do CI/CD since the CD can be a "success" and yet have catastrophic failures.
 
 We will also run some static analysis, e.g. linting for code style and quality checks, and security scans for vulnerabilities. I'm not super familiar with static analysis but other important analyzers can be added here.
 
@@ -55,3 +55,13 @@ Now that the game has been built, it can be uploaded to a test environment for t
 * Network (and multiplayer tests for games) can be automated as well if required.
 * Performance tests, e.g. frame rate, memory usage etc.
 * UI tests can be automated with frameworks like the [Unity UI Test Automation Framework](https://github.com/taphos/unity-uitest).
+
+## Q3: Backend Infrastructure
+My design for backend infrastructure depends on the budget, because a lot of components I will describe will be nice to have, but will also incur server costs or software license costs. Admittedly, I've only developed offline games so all my experience designing backend infrastructure is for local storage and data-driven game engines. 
+
+1. Since this will be a match-3 online game, I will use a Model-View-Controller pattern, where the model and controller are server-side; the controller will be the client. To prevent cheating, we need to have verification for stage clearing. I suppose this can be achieved by keeping track of the random seeds used by the client and their moves; we can then have a server side verifier that simulates the game alongside the client to ensure that the client is not manipulating the game.
+2. Login system and authentication since data will be stored strictly server-side. We can probably have sign-in using email, Apple ID, Google, Facebook, etc, or our own platform if we have one. We can use [Firebase Authentication](https://firebase.google.com/docs/auth) for an easy out-of-the-box solution. Alternatively, we can implement our own login system using a simple database that stores `email`, `playerId`, and some hashed password.
+3. Storage for player progress - Simple data tables will probably suffice, but for flexibility, I would want to use [Cloud Firestore](https://firebase.google.com/docs/firestore) which supports more complex data formats (which could show up in a player progress save), such as JSON. Alternatively, we can just store the JSON files using Amazon S3, or even host the files locally.
+4. Leaderboards can be implemented as follows: Use a simple database (any SQL will do) to store scores; leaderboards can be retrieved with simple queries via `SELECT` and `ORDER BY` and `LIMIT`. Alternatively, if the number of score submissions get too large, we can have more efficient queries by making use of of a Min Heap of size `k` where we only keep track of the top `k` scores.
+
+The following diagram summarizes the flow of data between the client and server, and shows the systems involved at each stage.
