@@ -20,7 +20,7 @@ public int GetEnergy()
 
 This function is part of an `EnergyManager` class. `CurrentTime` is a property of type `DateTime`; `TimeForOneEnergy` is of type `TimeSpan`; `MaxEnergy` is of type `int`.
 
-In this repository, I have mocked up a database using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been unit-tested using NUnit (unit tests are in this repository as well).
+In this repository, I have mocked up a [simple database](HappyHourTechnicalScreen/EnergyDatabase.cs) using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been [unit-tested](HappyHourTechnicalScreen/EnergyDatabaseTests.cs) using the NUnit constraint model (unit tests are in this repository as well).
 
 Some main assumptions I made about the behaviour of this system:
 1. There's a realistic driver providing the `CurrentTime` value, and it will always provide values that doesn't cause `deltaEnergy` to overflow. In my test environment, I have it such that I can manually adjust it.
@@ -65,3 +65,10 @@ My design for backend infrastructure depends on the budget, because a lot of com
 4. Leaderboards can be implemented as follows: Use a simple database (any SQL will do) to store scores; leaderboards can be retrieved with simple queries via `SELECT` and `ORDER BY` and `LIMIT`. Alternatively, if the number of score submissions get too large, we can have more efficient queries by making use of of a Min Heap of size `k` where we only keep track of the top `k` scores.
 
 The following diagram summarizes the flow of data between the client and server, and shows the systems involved at each stage.
+
+![Data Flow for Match-3 Game](Q3.svg)
+
+To summarize the above:
+1. The player logs in; the server authenticates (controller) the information and fetches the player JSON file (model). The client (view) displays necessary information.
+2. The player starts a new game of match-3, and informs the server. The server generates a random seed for the client to use; the client records down the moves (e.g. swaps, power-ups used etc.) and sends it back to the server. The server verifies the outcome by simulating the game with the moves.
+3. The server updates the player progress (e.g. currencies earned, energy spent, power-ups used), the leaderboard database, and sends the updated information to the client.
