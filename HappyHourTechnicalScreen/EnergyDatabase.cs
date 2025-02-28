@@ -56,6 +56,7 @@ public class EnergyDatabase
         private readonly EnergyDatabase parentDatabase;
         private int energy;
         private DateTime lastUpdateTimeStamp;
+        private TimeSpan timeStored;
 
         public EnergyManager(EnergyDatabase parentDatabase, int initialEnergy, DateTime lastUpdateTimeStamp)
         {
@@ -67,15 +68,15 @@ public class EnergyDatabase
         private TimeSpan TimeForOneEnergy => parentDatabase.timeForOneEnergy;
         private DateTime CurrentTime => parentDatabase.CurrentTime;
         private int MaxEnergy => parentDatabase.MaxEnergy;
-
+        
         public int GetEnergy()
         {
-            var deltaTime = CurrentTime - lastUpdateTimeStamp;
-            var deltaEnergy = (int)(deltaTime.Ticks / TimeForOneEnergy.Ticks);
-
-            if (deltaEnergy <= 0) return energy;
+            timeStored += CurrentTime - lastUpdateTimeStamp;
+            var deltaEnergy = (int)(timeStored.Ticks / TimeForOneEnergy.Ticks);
+            timeStored -= deltaEnergy * TimeForOneEnergy;
 
             energy = Math.Min(MaxEnergy, energy + deltaEnergy);
+            if (energy == MaxEnergy) timeStored = TimeSpan.Zero;
             lastUpdateTimeStamp = CurrentTime;
             return energy;
         }
@@ -87,6 +88,7 @@ public class EnergyDatabase
         /// <returns>Whether energy was successfully spent.</returns>
         public bool TrySpendEnergy(int amountToSpend)
         {
+            if (amountToSpend <= 0) return false;
             if (GetEnergy() < amountToSpend) return false;
             energy -= amountToSpend;
             return true;

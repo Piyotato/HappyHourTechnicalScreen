@@ -4,21 +4,32 @@
 
 I have attempted this in C#. The function required is really just as follows:
 
-```
+```c#
+private int energy;
+private DateTime lastUpdateTimeStamp;
+private TimeSpan timeStored; // To store "overflowed" time if the database isn't updated in multiples of 30 min.
+
 public int GetEnergy()
 {
-    var deltaTime = CurrentTime - lastUpdateTimeStamp;
-    var deltaEnergy = (int)(deltaTime.Ticks / TimeForOneEnergy.Ticks);
+    timeStored += CurrentTime - lastUpdateTimeStamp;
+    var deltaEnergy = (int)(timeStored.Ticks / TimeForOneEnergy.Ticks); // Amount of energy to add.
+    timeStored -= deltaEnergy * TimeForOneEnergy; // Remainder amount of time.
 
-    if (deltaEnergy <= 0) return energy;
-
-    energy = Math.Min(MaxEnergy, energy + deltaEnergy);
+    energy = Math.Min(MaxEnergy, energy + deltaEnergy); // Clamp energy to MaxEnergy.
+    if (energy == MaxEnergy) timeStored = TimeSpan.Zero; // If at max energy, cannot store extra time.
     lastUpdateTimeStamp = CurrentTime;
+
     return energy;
 }
 ```
 
-This function is part of an `EnergyManager` class. `CurrentTime` is a property of type `DateTime`; `TimeForOneEnergy` is of type `TimeSpan`; `MaxEnergy` is of type `int`.
+This function is part of an `EnergyManager` class. `CurrentTime` is a property of type `DateTime`; `TimeForOneEnergy` is of type `TimeSpan`; `MaxEnergy` is of type `int`. It turns out that it's not enough to store the last updated timestamp and compute the missing amount of energy. Consider the following scenario:
+
+1. Player starts with 2 Energy at time 0, and assume energy was last updated at time 0.
+2. At time 45, player checks energy. Energy updates to 3 Energy; energy last update is now set to time 45.
+3. At time 60, player checks energy. If `timeStored` isn't used, energy does __not__ update to 4 because it has only been 15 minutes since the previous update.
+
+Hence, `timeStored` is used to keep track of overflowed time to make sure the player gets energy fairly.
 
 In this repository, I have mocked up a [simple database](HappyHourTechnicalScreen/EnergyDatabase.cs) using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been [unit-tested](HappyHourTechnicalScreen/EnergyDatabaseTests.cs) using the NUnit constraint model (unit tests are in this repository as well).
 
