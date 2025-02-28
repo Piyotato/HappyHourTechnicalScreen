@@ -20,7 +20,7 @@ public int GetEnergy()
 
 This function is part of an `EnergyManager` class. `CurrentTime` is a property of type `DateTime`; `TimeForOneEnergy` is of type `TimeSpan`; `MaxEnergy` is of type `int`.
 
-I have mocked up a database using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been tested.
+In this repository, I have mocked up a database using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been unit-tested using NUnit (unit tests are in this repository as well).
 
 Some main assumptions I made about the behaviour of this system:
 1. There's a realistic driver providing the `CurrentTime` value, and it will always provide values that doesn't cause `deltaEnergy` to overflow. In my test environment, I have it such that I can manually adjust it.
