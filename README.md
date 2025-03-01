@@ -31,7 +31,7 @@ This function is part of an `EnergyManager` class. `CurrentTime` is a property o
 
 Hence, `timeStored` is used to keep track of overflowed time to make sure the player gets energy fairly.
 
-In this repository, I have mocked up a [simple database](HappyHourTechnicalScreen/EnergyDatabase.cs) using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used. The code has also been [unit-tested](HappyHourTechnicalScreen/EnergyDatabaseTests.cs) using the NUnit constraint model (unit tests are in this repository as well).
+In this repository, I have mocked up a [simple database](HappyHourTechnicalScreen/EnergyDatabase.cs) using a `Dictionary` keyed by `playerId` that further simulates the environment that this function might be used, i.e. methods for spending energy. The code has also been [unit-tested](HappyHourTechnicalScreen/EnergyDatabaseTests.cs) using the NUnit constraint model (unit tests are in this repository as well).
 
 Some main assumptions I made about the behaviour of this system:
 1. There's a realistic driver providing the `CurrentTime` value, and it will always provide values that doesn't cause `deltaEnergy` to overflow. In my test environment, I have it such that I can manually adjust it.
@@ -39,7 +39,7 @@ Some main assumptions I made about the behaviour of this system:
 
 ## Q2: CI/CD Pipeline
 
-Designing a CI/CD Pipeline starts with designing the CI. First of all, we decide on a DevOps platform. Personally, I'm used to using GitLab for my game development so let's use that. I'm also going to tailor my response to a CI/CD pipeline for a game project. For simplicity, I'll just describe the broad strokes. The CI/CD will have 3 stages:
+I'm going to tailor my response to a CI/CD pipeline for a game project. For simplicity, I'll just describe the broad strokes. The CI/CD will have 3 stages:
 
 **1. Testing & Static Analysis**
 
